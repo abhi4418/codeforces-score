@@ -21,7 +21,7 @@ app.get('/:username' , async (req,res)=>{
     try {
     const data = await axios.get(` https://codeforces.com/api/user.status?handle=${username}`) ;
     const currRatingResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${username}`) ;
-    let score = currRatingResponse.data.result[0].rating ;
+    let score = (currRatingResponse.data.result[0].rating?currRatingResponse.data.result[0].rating : 0) ;
     const arr = data.data.result;
     let uniqueProblems = new Set() ;
     let numberOfContests = new Set();
@@ -32,9 +32,7 @@ app.get('/:username' , async (req,res)=>{
         return (submission.verdict ==='OK') ;
     })
     for (let i = 0; i < newArr.length; i++) {
-        if(newArr[i].problem.rating){
         score = score + ((newArr[i].problem.rating -700)/100 * 0.5 );
-        }
         const problemId = `${newArr[i].problem.contestId}${newArr[i].problem.index}`;
         if(newArr[i].author.participantType == "CONTESTANT") {
             numberOfContests.add(newArr[i].contestId) ;
@@ -58,7 +56,7 @@ app.get('/:username' , async (req,res)=>{
 
     res.json({
         problemsSolved : uniqueProblems.size,
-        score : Math.floor(score), 
+        score : Math.ceil(score), 
         numberOfContests : numberOfContests.size ,
         heatMap : freqArray 
     })
