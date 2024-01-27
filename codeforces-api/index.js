@@ -7,8 +7,8 @@ const app = express() ;
 app.use(express.json()) ;
 app.use(cors()) ;
 
-app.get('/' , async (req,res)=>{  
-    const username = "agdecoder03"
+app.get('/:username' , async (req,res)=>{  
+    const username = req.params.username ;
     //800 - 0.5 , increment + 0.5(on every 100 rating inc from 800)
     // for each contest give 2 points(just for giving the contest)
 
@@ -25,14 +25,16 @@ app.get('/' , async (req,res)=>{
     const arr = data.data.result;
     let uniqueProblems = new Set() ;
     let numberOfContests = new Set();
+    let freqMap = new Map() ;
 
     // problems that are accepted
     const newArr = arr.filter((submission)=>{
         return (submission.verdict ==='OK') ;
     })
     for (let i = 0; i < newArr.length; i++) {
-
+        if(newArr[i].problem.rating){
         score = score + ((newArr[i].problem.rating -700)/100 * 0.5 );
+        }
         const problemId = `${newArr[i].problem.contestId}${newArr[i].problem.index}`;
         if(newArr[i].author.participantType == "CONTESTANT") {
             numberOfContests.add(newArr[i].contestId) ;
@@ -40,11 +42,25 @@ app.get('/' , async (req,res)=>{
         uniqueProblems.add(problemId);
     }
     score += numberOfContests.size * 2 ;
+
+    for(let i=0 ; i<newArr.length ; i++){
+        const myDate = new Date(newArr[i].creationTimeSeconds*1000)
+        const str = myDate.toDateString() ;
+        if(freqMap.has(str)) {
+            freqMap.set(str, freqMap.get(str) + 1) ;
+        }
+        else {
+            freqMap.set(str , 1) ;
+        }
+    }
+
+    let freqArray = Array.from(freqMap) ;
+
     res.json({
         problemsSolved : uniqueProblems.size,
         score : Math.floor(score), 
-        numberOfContests : numberOfContests.size,
-        array : newArr 
+        numberOfContests : numberOfContests.size ,
+        heatMap : freqArray 
     })
     }
     catch(e) {
@@ -53,4 +69,3 @@ app.get('/' , async (req,res)=>{
 })
 
 app.listen(3000);
-
