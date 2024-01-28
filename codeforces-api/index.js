@@ -26,7 +26,8 @@ app.get('/:username' , async (req,res)=>{
     let uniqueProblems = new Set() ;
     let numberOfContests = new Set();
     let freqMap = new Map() ;
-
+    const contributionScoreResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${username}`) ;
+    const contributionScore = contributionScoreResponse.data.result[0].contribution ;
     // problems that are accepted
     const newArr = arr.filter((submission)=>{
         return (submission.verdict ==='OK') ;
@@ -42,6 +43,7 @@ app.get('/:username' , async (req,res)=>{
         uniqueProblems.add(problemId);
     }
     score += numberOfContests.size * 2 ;
+    score +=(contributionScore>0? contributionScore*50: 0) ;
 
     for(let i=0 ; i<newArr.length ; i++){
         const myDate = new Date(newArr[i].creationTimeSeconds*1000)
