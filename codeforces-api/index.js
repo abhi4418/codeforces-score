@@ -32,7 +32,9 @@ app.get('/:username' , async (req,res)=>{
         return (submission.verdict ==='OK') ;
     })
     for (let i = 0; i < newArr.length; i++) {
+        if(newArr[i].problem.rating) {
         score = score + ((newArr[i].problem.rating -700)/100 * 0.5 );
+        }
         const problemId = `${newArr[i].problem.contestId}${newArr[i].problem.index}`;
         if(newArr[i].author.participantType == "CONTESTANT") {
             numberOfContests.add(newArr[i].contestId) ;
