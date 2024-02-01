@@ -18,6 +18,7 @@ app.get('/:username' , async (req,res)=>{
     // create a map -> (date , numberOfProblems)
     // give size of map in response
     // add current rating to score
+    // add profile photo to backend
     try {
     const data = await axios.get(` https://codeforces.com/api/user.status?handle=${username}`) ;
     const currRatingResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${username}`) ;
